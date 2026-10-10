@@ -1,0 +1,85 @@
+name: fallow-field-book
+display_name: "Fallow: Five-Field Rotation"
+display_name_i18n:
+  en: "Fallow: Five-Field Rotation"
+  zh: "休耕：五资产轮动"
+  zh-tw: "休耕：五資產輪動"
+  es: "Fallow: rotación de cinco activos"
+  ja: "Fallow：5資産ローテーション"
+  vi: "Fallow: luân chuyển năm tài sản"
+version: "1.0.0"
+description: "Weekly weights for BTC, ETH and three rTokens (S&P 500, gold, long Treasuries), with the rest held in USDT"
+description_i18n:
+  en: "Weekly weights for BTC, ETH and three rTokens (S&P 500, gold, long Treasuries), with the rest held in USDT"
+  zh: "每周给出 BTC、ETH 与三只 rToken（标普500、黄金、长期美债）的权重，其余持有 USDT"
+  zh-tw: "每週給出 BTC、ETH 與三檔 rToken（標普500、黃金、長期美債）的權重，其餘持有 USDT"
+  es: "Pesos semanales para BTC, ETH y tres rTokens (S&P 500, oro, bonos del Tesoro a largo plazo); el resto se mantiene en USDT"
+  ja: "BTC、ETHと3つのrToken（S&P 500、金、長期米国債）の週次ウェイト。残りはUSDTで保有"
+  vi: "Tỷ trọng hàng tuần cho BTC, ETH và ba rToken (S&P 500, vàng, trái phiếu kho bạc dài hạn); phần còn lại giữ bằng USDT"
+long_description: |
+  Fallow is a weekly allocation basket for people whose account is mostly
+  crypto. It aims to capture a simple behavior that shows up across markets:
+  assets that have been rising tend to keep rising for a while, and assets that
+  have been falling tend to keep falling. The approach looks at five things you
+  can hold as spot on Bitget, which are bitcoin, ether, and rTokens for the S&P
+  500, gold and long Treasuries, and it decides how much of the account belongs
+  in each. It is long only and never borrows.
+
+  A field enters the basket when its price is higher than it was over several
+  past stretches, from about a month to about a year. The more of those
+  stretches agree, the larger its share. Calm assets are given more room than
+  volatile ones, so each field contributes a similar amount of risk when it is
+  planted. Bitcoin and ether therefore get small weights even when they are
+  trending strongly.
+
+  A field leaves the basket when its price has fallen over every one of those
+  stretches. There is no take profit level and no stop loss order. The exit is
+  the next weekly run, which lowers a weight as the trend weakens and removes
+  it when the trend is gone. Whatever is not allocated is meant to rest in
+  USDT, and in quiet or falling markets that can be most of the account.
+
+  Subscribers can tune one setting, the yearly swing budget. Raising it makes
+  every planted weight larger, so the basket holds less USDT and moves more
+  with the markets. Lowering it shrinks the weights and leaves more of the
+  account resting. Total exposure is capped at the full account whatever the
+  setting, so raising it far has less and less effect.
+
+  The risk is that trends reverse. Fallow underperforms in sharp rallies,
+  because much of the account is usually resting, and it loses money in choppy
+  markets where prices rise just long enough to be planted and then fall. It
+  can lose for many months in a row. Its recent historical results leaned
+  heavily on gold, and it has lost a little since rTokens were listed. rToken
+  order books are thin outside New York hours, so weights are best applied
+  while those markets are open. This package publishes weights and does not
+  place orders. Past backtest performance does not predict future results.
+
+market_type: spot
+trading_symbols:
+  - BTCUSDT
+  - ETHUSDT
+  - RSPYUSDT
+  - RGLDUSDT
+  - RTLTUSDT
+tags: ["selection-basket", "allocation", "rotation", "rwa", "trend"]
+
+output_kind: selection_basket
+decision_mode: deterministic
+backtest_support: none
+runtime_profile: deterministic
+follow_trade_supported: false
+official_evidence_kind: paper
+
+schedule:
+  cron: "30 16 * * 1"
+  tz: "UTC"
+
+strategy_config:
+  swing_budget_pct: 15
+
+user_config_schema:
+  swing_budget_pct:
+    type: integer
+    default: 15
+    min: 5
+    max: 30
+    label: "Yearly swing budget (%)"

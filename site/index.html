@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fallow: a field book for five assets on Bitget</title>
+<meta name="description" content="A weekly rotation across bitcoin, ether, the S&P 500, gold and long Treasuries, all held on Bitget. Seven years of results, including the parts that lose.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Fallow: some seasons, the best thing to do with bitcoin is nothing">
+<meta property="og:description" content="A weekly rotation across bitcoin, ether, the S&P 500, gold and Treasuries on Bitget. Worst fall in 7.5 years: 10%, against 76% for bitcoin. The page also says where it loses.">
+<meta property="og:url" content="https://kinnuworks.github.io/fallow/">
+<meta property="og:image" content="https://kinnuworks.github.io/fallow/img/fields-day.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cabin:wght@400;500;700&family=Caveat:wght@500;600&family=Vollkorn:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script>
+  // Set the theme before the page paints, so there is no flash.
+  (function () {
+    var q = new URLSearchParams(location.search).get("theme"), saved = null;
+    try { saved = localStorage.getItem("fallow-theme"); } catch (e) {}
+    var t = q || saved;
+    if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t);
+  })();
+</script>
+</head>
+<body>
+
+<header class="masthead">
+  <nav class="pill" aria-label="Sections">
+    <a class="wordmark" href="#top">Fallow</a>
+    <span class="links">
+      <a href="#this-week">This week</a>
+      <a href="#record">The record</a>
+      <a href="#loses">Where it loses</a>
+      <a href="#check">Check it</a>
+    </span>
+    <button class="theme" id="theme" type="button" aria-label="Switch between light and dark"></button>
+  </nav>
+</header>
+
+<main id="top">
+
+<section class="hero">
+  <div class="hero-text">
+    <p class="kicker">A field book for five assets on Bitget</p>
+    <h1>Some seasons, the best thing to do with bitcoin is <span class="marker">nothing.</span></h1>
+    <p class="lead">Farmers rest a field when it stops giving. Fallow does the same with your money. Each week it looks at five things you can hold on Bitget and plants the ones still growing. The rest waits in USDT.</p>
+    <p class="actions">
+      <a class="button" href="#this-week">See this week's planting</a>
+      <a class="quiet" href="#loses">Where it loses</a>
+    </p>
+    <ul class="chips">
+      <li>No account or key needed</li>
+      <li>Every number rebuilds in two commands</li>
+    </ul>
+  </div>
+  <figure class="hero-art">
+    <div class="painting">
+      <img class="day" src="img/fields-day.jpg" width="1182" height="1330" alt="Oil painting of strip fields at sunset. Ripe wheat grows beside strips of bare, resting earth, with a barn and three poplars on the horizon.">
+      <img class="night" src="img/fields-night.jpg" width="1182" height="1330" alt="The same fields under a harvest moon. Wheat glows beside strips of dark, resting earth.">
+      <p class="note" id="weekly-note" aria-live="polite">Reading the fields&hellip;</p>
+    </div>
+  </figure>
+</section>
+
+<ul class="proof" aria-label="What the record rests on">
+  <li><b data-fill="years"></b><span>years of Bitget daily candles</span></li>
+  <li><b data-fill="held-days"></b><span>days held back and run once</span></li>
+  <li><b data-fill="grid-n"></b><span>versions of the rule tested</span></li>
+  <li><b data-fill="fallow-dd"></b><span>worst fall, against <span data-fill="btc-dd"></span> for bitcoin</span></li>
+</ul>
+
+<section id="this-week" class="split">
+  <div class="side">
+    <h2>This week's planting</h2>
+    <p class="dateline" id="plan-date"></p>
+  </div>
+  <div class="body">
+    <div class="fields" id="fields" role="list"></div>
+    <figure class="farm">
+      <figcaption>Where the money sits</figcaption>
+      <div id="allocation" class="allocation" role="img"></div>
+      <ul id="allocation-key" class="key"></ul>
+    </figure>
+  </div>
+</section>
+
+<section id="yours" class="split">
+  <div class="side">
+    <h2>Your Monday list</h2>
+    <p>Type what you have and pick how bumpy a ride you can take. The list is what to hold this week.</p>
+  </div>
+  <div class="body">
+    <form class="yours" onsubmit="return false">
+      <label class="field-input">
+        <span>Your account, in USDT</span>
+        <input id="account" type="number" inputmode="decimal" min="0" step="100" value="10000">
+      </label>
+      <label class="field-input dial">
+        <span>Yearly swing budget: <b id="dial-value">15%</b></span>
+        <input id="dial" type="range" min="5" max="30" step="5" value="15">
+        <span class="ends"><i>Gentle</i><i>Rough</i></span>
+      </label>
+    </form>
+    <details class="holdings" id="holdings">
+      <summary>I already hold some of these</summary>
+      <p class="small">Enter what each is worth in USDT today, and the list turns into the trades that get you to this week's plan.</p>
+      <div class="holding-grid" id="holding-grid"></div>
+    </details>
+    <div class="table-wrap">
+    <table id="list">
+      <thead><tr><th>Hold</th><th>Share</th><th>Amount</th><th>Trade</th><th>Cost right now</th></tr></thead>
+      <tbody></tbody>
+    </table>
+    </div>
+    <p class="small" id="cost-line" aria-live="polite"></p>
+    <p class="actions tight">
+      <button class="button" id="copy" type="button">Copy the list</button>
+      <button class="quiet-button" id="reprice" type="button">Check the order books again</button>
+      <span class="small" id="copied" aria-live="polite"></span>
+    </p>
+    <p class="small" id="dial-record"></p>
+    <p class="small">Costs are read from Bitget's public order books the moment you load the page. rToken books are deepest while New York is open. This page is a calculator and places nothing.</p>
+  </div>
+</section>
+
+<section id="how" class="split">
+  <div class="side">
+    <h2>How a field earns its place</h2>
+  </div>
+  <ol class="steps body">
+    <li>
+      <span class="n">01</span>
+      <h3>Look back four ways</h3>
+      <p>Is the price higher than a month ago? Three months? Six? A year? Each yes is a quarter of a planting. Four out of four and the field is planted in full. None and it rests.</p>
+    </li>
+    <li>
+      <span class="n">02</span>
+      <h3>Give calm fields more ground</h3>
+      <p>Every planted field should carry about the same risk. Bitcoin swings hard, so it rarely gets more than a tenth of the farm, even in a good run. The farm as a whole aims for swings of about 15% a year.</p>
+    </li>
+    <li>
+      <span class="n">03</span>
+      <h3>Rest the remainder</h3>
+      <p>Whatever is not planted waits in USDT. Fallow never borrows and never shorts. The plan is drawn once a week from Monday's midday price in New York and traded a day later.</p>
+    </li>
+  </ol>
+</section>
+
+<section id="calendar" class="split">
+  <div class="side">
+    <h2>Seven years of planting</h2>
+    <p>Each column is one week. Wheat means the field was planted that week, and the paler it is the less ground it had. Move across it to read any week.</p>
+  </div>
+  <div class="body">
+    <figure>
+      <svg id="chart-calendar" class="chart calendar" role="img" aria-label="Which fields were planted in each week since 2019"></svg>
+    </figure>
+    <p id="calendar-detail" aria-live="polite"></p>
+  </div>
+</section>
+
+<section id="record" class="split">
+  <div class="side">
+    <h2>Seven years, drought included</h2>
+    <p>Holding bitcoin has meant sitting <span data-fill="btc-dd"></span> below its high at the worst point. Fallow's worst was <span data-fill="fallow-dd"></span>.</p>
+  </div>
+  <div class="body">
+    <figure>
+      <figcaption>How far underwater</figcaption>
+      <svg id="chart-drawdown" class="chart" role="img" aria-label="Drawdown of Fallow and of holding bitcoin"></svg>
+    </figure>
+    <p>The price of that calm is growth. Bitcoin grew far more over the same years, as the next chart shows. If you can sit through a 76% fall without selling, you do not need this.</p>
+    <figure>
+      <figcaption>Growth of 1 USDT, on a scale where each line up is ten times the last</figcaption>
+      <svg id="chart-growth" class="chart" role="img" aria-label="Growth of Fallow and of holding bitcoin"></svg>
+    </figure>
+
+    <h3>The numbers the judges asked for</h3>
+    <div class="table-wrap">
+    <table id="metrics">
+      <thead><tr><th></th><th>Sharpe</th><th>Sortino</th><th>Worst fall</th><th>Yearly growth</th><th>Turnover a year</th></tr></thead>
+      <tbody></tbody>
+    </table>
+    </div>
+    <p class="small">The rule was written down using data to the end of 2023. Everything from January 2024 was held back and run once. The held-back Sharpe is <span data-fill="decay"></span> of the earlier one. Bitget's handbook treats anything under 0.5 as a warning.</p>
+
+    <h3>Start on any day and hold for a year</h3>
+    <p>There were <span data-fill="hold-n"></span> possible one-year stretches in the record. This is how they ended.</p>
+    <div class="table-wrap">
+    <table id="holds">
+      <thead><tr><th></th><th>Ended up</th><th>Worst year</th><th>One in ten was below</th><th>Typical year</th><th>Best year</th></tr></thead>
+      <tbody></tbody>
+    </table>
+    </div>
+
+    <h3>Bitcoin's five worst falls</h3>
+    <p>The same dates, for both.</p>
+    <div class="table-wrap">
+    <table id="storms">
+      <thead><tr><th>From</th><th>To</th><th>Holding bitcoin</th><th>Fallow</th></tr></thead>
+      <tbody></tbody>
+    </table>
+    </div>
+
+    <h3>Year by year</h3>
+    <div class="table-wrap">
+    <table id="years"><thead><tr><th></th></tr></thead><tbody></tbody></table>
+    </div>
+  </div>
+</section>
+
+<section id="adds" class="split">
+  <div class="side">
+    <h2>What the rTokens add</h2>
+  </div>
+  <div class="body">
+    <p>Until June 2026 a trend rule on Bitget had two places to put money: crypto or USDT. With the S&amp;P 500, gold and Treasuries listed as rTokens, there are five. Here is the same rule run both ways on the held-back years.</p>
+    <div id="adds-bars" class="bars"></div>
+    <p class="small">Sharpe ratio, January 2024 to October 2026, after 15 bp costs.</p>
+    <p id="one-field"></p>
+  </div>
+</section>
+
+<section id="loses" class="split">
+  <div class="side">
+    <h2>Where it loses</h2>
+    <p>Every strategy page shows you the good years. These are the things that should make you hesitate.</p>
+  </div>
+  <ol class="losses body" id="losses"></ol>
+</section>
+
+<section id="tuned" class="split">
+  <div class="side">
+    <h2>Was it tuned to look good?</h2>
+  </div>
+  <div class="body">
+    <p>We ran <span data-fill="grid-n"></span> versions of the rule with different lookbacks, volatility windows, risk budgets and rebalance days. Each tick is one version's Sharpe on the held-back years. The tall mark is the version on this page.</p>
+    <figure>
+      <svg id="chart-grid" class="chart short" role="img" aria-label="Held-out Sharpe of every variant"></svg>
+    </figure>
+    <p class="small" id="grid-note"></p>
+  </div>
+</section>
+
+<section id="check" class="split">
+  <div class="side">
+    <h2>Check it yourself</h2>
+  </div>
+  <div class="body">
+    <p>Everything here comes from Bitget's public candle API and about 500 lines of Python with no dependencies.</p>
+<pre><code>python3 -m fallow fetch     # daily candles for nine symbols
+python3 -m fallow report    # every number on this page
+python3 -m fallow plan      # this week's weights
+python3 -m unittest discover tests</code></pre>
+    <h3>Things to know about the data</h3>
+    <ul class="plain">
+      <li>Bitcoin and ether candles are Bitget spot, from July 2018.</li>
+      <li>rToken spot pairs went live on <span data-fill="listing"></span>. Bitget serves earlier candles for those symbols too. They are the price of the underlying fund, without dividends.</li>
+      <li>Daily bars open at 16:00 UTC. A day when New York is shut carries the last price forward.</li>
+      <li>USDT earns nothing in the backtest.</li>
+      <li>Costs are 15 bp for each unit traded.</li>
+    </ul>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <p>Fallow is a hackathon entry for Bitget AI Base Camp, Season 2, Alpha Factory track. It is research and a rule you can read. It is not advice, and past weather is a poor guide to next season.</p>
+  <p class="small"><a href="https://github.com/kinnuworks/fallow">Code, data and tests on GitHub</a></p>
+  <p class="small" id="built"></p>
+</footer>
+
+<script src="app.js"></script>
+<script src="live.js"></script>
+</body>
+</html>
