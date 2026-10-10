@@ -155,7 +155,7 @@ function drawGrowth(curves, report) {
     svg.append(el("text", { x: LEFT - 8, y: y(v) + 4, "text-anchor": "end" }, v + "×"));
   }
   yearTicks(svg, curves.dates, x, bottom);
-  const marks = [[report.holdout_start, "held back from here"], [report.rtoken_listing, "rTokens live"]];
+  const marks = [[report.holdout_start, "out of sample from here"], [report.rtoken_listing, "rTokens live"]];
   for (const [date, label] of marks) {
     const i = curves.dates.findIndex((d) => d >= date);
     if (i < 0) continue;
@@ -239,15 +239,15 @@ function drawAdds(report) {
   const rows = [
     ["Crypto and USDT only", report.ablations.crypto_only_trend.held_out.sharpe, ""],
     ["Holding bitcoin", report.benchmarks.btc_hold.held_out.sharpe, ""],
-    ["Everything in the one strongest field", report.ablations.one_field_at_a_time.held_out.sharpe, ""],
-    ["All five fields", report.fallow.held_out.sharpe, "ours"],
+    ["Everything in the one strongest asset", report.ablations.one_field_at_a_time.held_out.sharpe, ""],
+    ["All five assets", report.fallow.held_out.sharpe, "ours"],
   ];
   const max = Math.max(...rows.map((r) => r[1]));
   const one = report.ablations.one_field_at_a_time.full;
   document.getElementById("one-field").textContent =
-    `Why spread the money at all? We tried putting everything in the single strongest field each week. Over the whole period it grew ` +
+    `We also tried putting everything in the single strongest asset each week. Over the whole period that grew ` +
     `${pct(one.cagr, 0)} a year, fell ${pct(-one.max_drawdown, 0)} at its worst and traded ${num(one.turnover_per_year, 0)} times the account a year. ` +
-    `Its Sharpe was ${num(one.sharpe)} against ${num(report.fallow.full.sharpe)} for five fields sharing the risk.`;
+    `Its Sharpe was ${num(one.sharpe)} against ${num(report.fallow.full.sharpe)} for five assets sharing the risk.`;
   const box = document.getElementById("adds-bars");
   for (const [label, v, cls] of rows) {
     box.append(html("div", `bar ${cls}`,
@@ -260,24 +260,24 @@ function drawLosses(report) {
   const f = report.fallow, a = report.ablations, c = report.cost_sensitivity;
   const worst = report.worst_drawdowns.fallow[0];
   const items = [
-    `<b>It has lost money since rTokens went live.</b> From ${longDate(report.rtoken_listing)} it is down ${pct(-f.rtoken_era.total_return)} ` +
+    `It has lost money since rTokens went live. From ${longDate(report.rtoken_listing)} it is down ${pct(-f.rtoken_era.total_return)} ` +
       `while bitcoin rose ${pct(report.benchmarks.btc_hold.rtoken_era.total_return, 0)}. That is ${f.rtoken_era.days} days, which is short. ` +
       `It is also the only stretch that used real rToken prices.`,
-    `<b>Its last year was a losing one.</b> Over the most recent 365 days it is down ${pct(-f.last_year.total_return)}, with a Sharpe of ${num(f.last_year.sharpe)}. ` +
+    `Its last year was a losing one. Over the most recent 365 days it is down ${pct(-f.last_year.total_return)}, with a Sharpe of ${num(f.last_year.sharpe)}. ` +
       `A one-year backtest, which is what most strategy listings show, would make Fallow look bad. Holding bitcoin lost ` +
       `${pct(-report.benchmarks.btc_hold.last_year.total_return, 0)} over the same year, and Bitget's own official cross-asset rotation Playbook ` +
       `was flat over its first 82 live days.`,
-    `<b>It leans on gold.</b> Take gold out and the out-of-sample Sharpe falls from ${num(f.held_out.sharpe)} to ` +
+    `It leans on gold. Take gold out and the out-of-sample Sharpe falls from ${num(f.held_out.sharpe)} to ` +
       `${num(a.without_RGLDUSDT.held_out.sharpe)}. Much of 2024 and 2025 was a gold story.`,
-    `<b>Five fields flatter it.</b> We fixed the five before looking, following Harry Browne's old portfolio of stocks, bonds, gold and cash, ` +
-      `plus two coins. A nine-field version with foreign shares, mid Treasuries and oil scores ${num(a.nine_fields.held_out.sharpe)} out of sample.`,
-    `<b>It trails bitcoin badly in a bull run.</b> On average ${pct(f.full.avg_exposure, 0)} of the money is planted. ` +
+    `Five assets flatter it. We fixed the five before looking, following Harry Browne's old portfolio of stocks, bonds, gold and cash, ` +
+      `plus two coins. A nine-asset version with foreign shares, mid Treasuries and oil scores ${num(a.nine_fields.held_out.sharpe)} out of sample.`,
+    `It trails bitcoin badly in a bull run. On average ${pct(f.full.avg_exposure, 0)} of the account is invested. ` +
       `Bitcoin grew ${pct(report.benchmarks.btc_hold.full.cagr, 0)} a year over the whole period and Fallow grew ${pct(f.full.cagr, 0)}.`,
-    `<b>Costs bite.</b> We assume 15 bp a trade. At 30 bp the out-of-sample Sharpe is ${num(c["30bp"].held_out.sharpe)}, and at 60 bp it is ${num(c["60bp"].held_out.sharpe)}.`,
-    `<b>The Sharpe is a rough figure.</b> On ${num(f.held_out.years, 1)} out-of-sample years its standard error is ${num(f.held_out.sharpe_stderr)}, ` +
+    `The result depends on costs. We assume 15 bp a trade. At 30 bp the out-of-sample Sharpe is ${num(c["30bp"].held_out.sharpe)}, and at 60 bp it is ${num(c["60bp"].held_out.sharpe)}.`,
+    `The Sharpe is a rough figure. On ${num(f.held_out.years, 1)} out-of-sample years its standard error is ${num(f.held_out.sharpe_stderr)}, ` +
       `so the true number could sit anywhere from about ${num(f.held_out.sharpe - f.held_out.sharpe_stderr, 1)} to ${num(f.held_out.sharpe + f.held_out.sharpe_stderr, 1)}.`,
-    `<b>Its dry spells are long.</b> The worst ran from ${monthYear(worst.from)} to ${monthYear(worst.to)}, a fall of ${pct(-worst.depth)} ` +
-      `that took most of two years. A month is a coin toss: ${pct(f.full.rolling30_share_positive, 0)} of 30-day windows had a positive Sharpe.`,
+    `Its losing stretches are long. The worst ran from ${monthYear(worst.from)} to ${monthYear(worst.to)}, a fall of ${pct(-worst.depth)} ` +
+      `that took most of two years. Short stretches are unreliable: ${pct(f.full.rolling30_share_positive, 0)} of 30-day windows had a positive Sharpe.`,
   ];
   const ol = document.getElementById("losses");
   for (const item of items) ol.append(html("li", "", item));
@@ -323,7 +323,7 @@ async function main() {
   document.getElementById("grid-note").textContent =
     `Every version stayed above ${num(g.held_out_sharpe.min, 1)}. The one on this page sits at the ` +
     `${Math.round(g.default_percentile_held_out * 100)}th percentile, so about three in four of the alternatives did better. ` +
-    `We kept the textbook settings anyway, because picking the best of ${g.variants} after the fact is how backtests lie.`;
+    `We kept the textbook settings, because choosing the best of ${g.variants} after seeing the results would overstate what the rule can do.`;
   document.getElementById("built").textContent = `Numbers built ${report.built} from candles to ${longDate(report.last_day)}.`;
   // live.js takes it from here: it recomputes the plan from Bitget's public API and runs the Monday list.
   window.Fallow = {
