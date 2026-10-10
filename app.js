@@ -34,7 +34,7 @@ function weeklyNote(report) {
   const parts = [`Week of ${longDate(as_of).replace(/ \d{4}$/, "")}.`];
   if (planted.length) parts.push(`${name[planted[0][0]]} gets the most ground.`);
   else parts.push("Nothing is worth planting.");
-  if (resting.length) parts.push(`${list(resting)} ${resting.length > 1 ? "are" : "is"} resting.`);
+  if (resting.length) parts.push(`${list(resting)} ${resting.length > 1 || resting[0].endsWith("s") ? "are" : "is"} resting.`);
   parts.push(usdt > 0.5 ? `More than half the farm waits in USDT.` : `${pct(usdt, 0)} waits in USDT.`);
   return parts.join(" ");
 }
