@@ -108,17 +108,28 @@ a:hover { text-decoration-thickness: 2px; }
   position: relative;
   flex: none;
 }
-.theme::before {
-  content: "";
+/* The icon shows where the switch takes you: a moon while the page is light, a sun while it is dark. */
+.theme svg {
   position: absolute;
-  inset: 9px;
-  border-radius: 50%;
-  background: var(--wheat);
-  box-shadow: inset -6px -2px 0 0 var(--paper);
-  transition: box-shadow 0.25s ease;
+  inset: 0;
+  margin: auto;
+  width: 22px; height: 22px;
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 0.4s cubic-bezier(0.3, 0.7, 0.2, 1), opacity 0.2s ease;
 }
-:root[data-theme="light"] .theme::before { box-shadow: inset 0 0 0 0 var(--paper); }
-@media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) .theme::before { box-shadow: inset 0 0 0 0 var(--paper); } }
+.theme .moon { opacity: 1; transform: none; fill: var(--wheat); }
+.theme .sun  { opacity: 0; transform: rotate(-70deg) scale(0.5); }
+.theme .sun circle { fill: var(--wheat); }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .theme .moon { opacity: 0; transform: rotate(70deg) scale(0.5); }
+  :root:not([data-theme="light"]) .theme .sun  { opacity: 1; transform: none; }
+}
+:root[data-theme="dark"] .theme .moon { opacity: 0; transform: rotate(70deg) scale(0.5); }
+:root[data-theme="dark"] .theme .sun  { opacity: 1; transform: none; }
 .theme:hover { border-color: var(--ink-soft); }
 
 main, footer { max-width: var(--wide); margin: 0 auto; padding-left: 28px; padding-right: 28px; }
@@ -415,5 +426,5 @@ footer p { max-width: 62ch; }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .crop-fill, .button { transition: none; }
+  .crop-fill, .button, .theme svg { transition: none; }
 }

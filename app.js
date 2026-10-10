@@ -339,12 +339,24 @@ async function main() {
 }
 
 // The switch in the nav flips between light and dark and remembers the choice.
-document.getElementById("theme").addEventListener("click", () => {
-  const root = document.documentElement;
-  const dark = root.dataset.theme ? root.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
-  root.dataset.theme = dark ? "light" : "dark";
-  try { localStorage.setItem("fallow-theme", root.dataset.theme); } catch (e) {}
+// Its label always names the mode it will switch to.
+const themeButton = document.getElementById("theme");
+const isDark = () => {
+  const set = document.documentElement.dataset.theme;
+  return set ? set === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+};
+const labelTheme = () => {
+  const label = isDark() ? "Switch to light mode" : "Switch to dark mode";
+  themeButton.setAttribute("aria-label", label);
+  themeButton.title = label;
+};
+themeButton.addEventListener("click", () => {
+  document.documentElement.dataset.theme = isDark() ? "light" : "dark";
+  try { localStorage.setItem("fallow-theme", document.documentElement.dataset.theme); } catch (e) {}
+  labelTheme();
 });
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", labelTheme);
+labelTheme();
 
 main().catch((err) => {
   document.getElementById("weekly-note").textContent = "The field book did not load. Try again in a minute.";
