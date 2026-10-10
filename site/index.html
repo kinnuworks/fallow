@@ -32,7 +32,7 @@
     <a class="wordmark" href="#top">Fallow</a>
     <span class="links">
       <a href="#this-week">This week</a>
-      <a href="#record">The record</a>
+      <a href="#record">Record</a>
       <a href="#loses">Where it loses</a>
       <a href="#check">Check it</a>
     </span>
@@ -44,11 +44,11 @@
 
 <section class="hero">
   <div class="hero-text">
-    <p class="kicker">A field book for five assets on Bitget</p>
-    <h1>Some seasons, the best thing to do with bitcoin is <span class="marker">nothing.</span></h1>
-    <p class="lead">Farmers rest a field when it stops giving. Fallow does the same with your money. Each week it looks at five things you can hold on Bitget and plants the ones still growing. The rest waits in USDT.</p>
+    <h1>Some seasons, the best thing to do with bitcoin is nothing.</h1>
+    <p class="lead">Fallow is a weekly rotation strategy across BTC, ETH and three Bitget rTokens: the S&amp;P 500, gold and long Treasuries. It holds whichever are trending and keeps the rest in USDT. Spot only, no leverage.</p>
+    <p class="aside">The name is a farming word. A fallow field is one you leave unplanted until it is worth sowing again.</p>
     <p class="actions">
-      <a class="button" href="#this-week">See this week's planting</a>
+      <a class="button" href="#this-week">See this week's holdings</a>
       <a class="quiet" href="#loses">Where it loses</a>
     </p>
     <ul class="chips">
@@ -65,16 +65,42 @@
   </figure>
 </section>
 
-<ul class="proof" aria-label="What the record rests on">
-  <li><b data-fill="years"></b><span>years of Bitget daily candles</span></li>
-  <li><b data-fill="held-days"></b><span>days held back and run once</span></li>
-  <li><b data-fill="grid-n"></b><span>versions of the rule tested</span></li>
-  <li><b data-fill="fallow-dd"></b><span>worst fall, against <span data-fill="btc-dd"></span> for bitcoin</span></li>
-</ul>
+<section id="judges" class="split">
+  <div class="side">
+    <h2>For judges</h2>
+    <p>Bitget AI Base Camp Hackathon S2. Track: Alpha Factory. Sub-theme: Cross-Asset Allocation / Rotation.</p>
+  </div>
+  <div class="body">
+    <dl class="spec">
+      <dt>Instruments</dt>
+      <dd>BTCUSDT, ETHUSDT, RSPYUSDT, RGLDUSDT and RTLTUSDT, all Bitget spot. Cash is USDT.</dd>
+      <dt>Signal</dt>
+      <dd>Time-series momentum. For each asset, the share of four lookbacks (21, 63, 126 and 252 days) with a positive return.</dd>
+      <dt>Sizing</dt>
+      <dd>Each asset gets an equal slice of a 15% yearly volatility target, scaled by its signal and its 60-day volatility. Exposure is capped at 100%. Long only.</dd>
+      <dt>Rebalance</dt>
+      <dd>Weekly. The signal is read at midday on Monday in New York and traded one daily bar later.</dd>
+      <dt>Costs</dt>
+      <dd>15 bp for each unit of turnover.</dd>
+      <dt>Test</dt>
+      <dd>Bitget daily candles, <span data-fill="span"></span>. The rule was fixed on data to December 2023. January 2024 onward is out of sample and was run once.</dd>
+    </dl>
+    <div class="table-wrap">
+    <table id="scorecard">
+      <thead><tr><th></th><th>Sharpe</th><th>Sortino</th><th>Max drawdown</th><th>CAGR</th><th>Turnover / year</th></tr></thead>
+      <tbody></tbody>
+    </table>
+    </div>
+    <p class="small" id="scorecard-note"></p>
+<p class="small">These two commands rebuild every number on this page:</p>
+<pre><code>python3 -m fallow fetch
+python3 -m fallow report</code></pre>
+  </div>
+</section>
 
 <section id="this-week" class="split">
   <div class="side">
-    <h2>This week's planting</h2>
+    <h2>What Fallow holds this week</h2>
     <p class="dateline" id="plan-date"></p>
   </div>
   <div class="body">
@@ -90,7 +116,7 @@
 <section id="yours" class="split">
   <div class="side">
     <h2>Your Monday list</h2>
-    <p>Type what you have and pick how bumpy a ride you can take. The list is what to hold this week.</p>
+    <p>Enter your account size and a volatility target. The list is what to hold this week and what it costs to get there.</p>
   </div>
   <div class="body">
     <form class="yours" onsubmit="return false">
@@ -99,9 +125,9 @@
         <input id="account" type="number" inputmode="decimal" min="0" step="100" value="10000">
       </label>
       <label class="field-input dial">
-        <span>Yearly swing budget: <b id="dial-value">15%</b></span>
+        <span>Volatility target, per year: <b id="dial-value">15%</b></span>
         <input id="dial" type="range" min="5" max="30" step="5" value="15">
-        <span class="ends"><i>Gentle</i><i>Rough</i></span>
+        <span class="ends"><i>Calmer</i><i>Bumpier</i></span>
       </label>
     </form>
     <details class="holdings" id="holdings">
@@ -128,31 +154,31 @@
 
 <section id="how" class="split">
   <div class="side">
-    <h2>How a field earns its place</h2>
+    <h2>How the weights are set</h2>
   </div>
   <ol class="steps body">
     <li>
       <span class="n">01</span>
-      <h3>Look back four ways</h3>
-      <p>Is the price higher than a month ago? Three months? Six? A year? Each yes is a quarter of a planting. Four out of four and the field is planted in full. None and it rests.</p>
+      <h3>Score the trend</h3>
+      <p>Is the price higher than a month ago? Three months? Six? A year? Each yes adds a quarter to the asset's score. Four out of four means a full position. None means the asset is not held.</p>
     </li>
     <li>
       <span class="n">02</span>
-      <h3>Give calm fields more ground</h3>
-      <p>Every planted field should carry about the same risk. Bitcoin swings hard, so it rarely gets more than a tenth of the farm, even in a good run. The farm as a whole aims for swings of about 15% a year.</p>
+      <h3>Size by volatility</h3>
+      <p>Every asset held should carry about the same risk. Bitcoin swings hard, so it rarely gets more than a tenth of the account, even in a good run. The account as a whole targets volatility of about 15% a year.</p>
     </li>
     <li>
       <span class="n">03</span>
-      <h3>Rest the remainder</h3>
-      <p>Whatever is not planted waits in USDT. Fallow never borrows and never shorts. The plan is drawn once a week from Monday's midday price in New York and traded a day later.</p>
+      <h3>Keep the rest in USDT</h3>
+      <p>Whatever is not allocated stays in USDT. Fallow never borrows and never shorts. The weights are set once a week from Monday's midday price in New York and traded a day later.</p>
     </li>
   </ol>
 </section>
 
 <section id="calendar" class="split">
   <div class="side">
-    <h2>Seven years of planting</h2>
-    <p>Each column is one week. Wheat means the field was planted that week, and the paler it is the less ground it had. Move across it to read any week.</p>
+    <h2>Every weekly allocation since 2019</h2>
+    <p>Each column is one week. Colour means the asset was held that week, and the paler it is the smaller the position. Move across it to read any week.</p>
   </div>
   <div class="body">
     <figure>
@@ -164,7 +190,7 @@
 
 <section id="record" class="split">
   <div class="side">
-    <h2>Seven years, drought included</h2>
+    <h2>The record, 2019 to 2026</h2>
     <p>Holding bitcoin has meant sitting <span data-fill="btc-dd"></span> below its high at the worst point. Fallow's worst was <span data-fill="fallow-dd"></span>.</p>
   </div>
   <div class="body">
@@ -178,20 +204,20 @@
       <svg id="chart-growth" class="chart" role="img" aria-label="Growth of Fallow and of holding bitcoin"></svg>
     </figure>
 
-    <h3>The numbers the judges asked for</h3>
+    <h3>Against holding bitcoin</h3>
     <div class="table-wrap">
     <table id="metrics">
-      <thead><tr><th></th><th>Sharpe</th><th>Sortino</th><th>Worst fall</th><th>Yearly growth</th><th>Turnover a year</th></tr></thead>
+      <thead><tr><th></th><th>Sharpe</th><th>Sortino</th><th>Max drawdown</th><th>CAGR</th><th>Turnover / year</th></tr></thead>
       <tbody></tbody>
     </table>
     </div>
-    <p class="small">The rule was written down using data to the end of 2023. Everything from January 2024 was held back and run once. The held-back Sharpe is <span data-fill="decay"></span> of the earlier one. Bitget's handbook treats anything under 0.5 as a warning.</p>
+    <p class="small">Out-of-sample Sharpe is <span data-fill="decay"></span> of in-sample. Bitget's handbook treats anything under 0.5 as a warning.</p>
 
     <h3>Start on any day and hold for a year</h3>
     <p>There were <span data-fill="hold-n"></span> possible one-year stretches in the record. This is how they ended.</p>
     <div class="table-wrap">
     <table id="holds">
-      <thead><tr><th></th><th>Ended up</th><th>Worst year</th><th>One in ten was below</th><th>Typical year</th><th>Best year</th></tr></thead>
+      <thead><tr><th></th><th>Ended positive</th><th>Worst</th><th>10th percentile</th><th>Median</th><th>Best</th></tr></thead>
       <tbody></tbody>
     </table>
     </div>
@@ -217,7 +243,7 @@
     <h2>What the rTokens add</h2>
   </div>
   <div class="body">
-    <p>Until June 2026 a trend rule on Bitget had two places to put money: crypto or USDT. With the S&amp;P 500, gold and Treasuries listed as rTokens, there are five. Here is the same rule run both ways on the held-back years.</p>
+    <p>Until June 2026 a trend rule on Bitget had two places to put money: crypto or USDT. With the S&amp;P 500, gold and Treasuries listed as rTokens, there are five. Here is the same rule run both ways on the out-of-sample years.</p>
     <div id="adds-bars" class="bars"></div>
     <p class="small">Sharpe ratio, January 2024 to October 2026, after 15 bp costs.</p>
     <p id="one-field"></p>
@@ -237,7 +263,7 @@
     <h2>Was it tuned to look good?</h2>
   </div>
   <div class="body">
-    <p>We ran <span data-fill="grid-n"></span> versions of the rule with different lookbacks, volatility windows, risk budgets and rebalance days. Each tick is one version's Sharpe on the held-back years. The tall mark is the version on this page.</p>
+    <p>We ran <span data-fill="grid-n"></span> versions of the rule with different lookbacks, volatility windows, risk budgets and rebalance days. Each tick is one version's out-of-sample Sharpe. The tall mark is the version on this page.</p>
     <figure>
       <svg id="chart-grid" class="chart short" role="img" aria-label="Held-out Sharpe of every variant"></svg>
     </figure>

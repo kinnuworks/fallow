@@ -160,7 +160,7 @@
       }
       const resting = rows.filter(([, w]) => w < 0.0005).map(([s]) => name[s]);
       body.append(html("tr", "rest",
-        `<td>Resting in USDT${resting.length ? `<small>${list(resting)} ${resting.length > 1 || resting[0].endsWith("s") ? "are" : "is"} fallow this week</small>` : ""}</td>` +
+        `<td>USDT${resting.length ? `<small>${list(resting)} not held this week</small>` : ""}</td>` +
         `<td>${pct(setting.usdt)}</td><td>${money(setting.usdt * size)}</td><td></td><td></td>`));
       lines.push(`USDT  hold ${money(setting.usdt * size)}  (${pct(setting.usdt)})`);
 
@@ -174,7 +174,7 @@
       }
       document.getElementById("dial-record").textContent =
         `At this setting, the ${num(report.fallow.full.years, 1)}-year record is ${pct(stats.cagr)} growth a year, ` +
-        `a worst fall of ${pct(-stats.max_drawdown)} and a Sharpe of ${num(stats.sharpe)}, with ${pct(stats.avg_exposure, 0)} of the money planted on average.`;
+        `a max drawdown of ${pct(-stats.max_drawdown)} and a Sharpe of ${num(stats.sharpe)}, with ${pct(stats.avg_exposure, 0)} of the account invested on average.`;
       document.getElementById("copied").textContent = "";
     };
 
@@ -182,7 +182,7 @@
     dial.addEventListener("input", draw);
     grid.addEventListener("input", draw);
     document.getElementById("copy").addEventListener("click", async () => {
-      const text = `Fallow, week of ${longDate(report.plan.as_of)}, swing budget ${dial.value}%\n` + lines.join("\n");
+      const text = `Fallow, week of ${longDate(report.plan.as_of)}, volatility target ${dial.value}%\n` + lines.join("\n");
       try { await navigator.clipboard.writeText(text); document.getElementById("copied").textContent = "Copied."; }
       catch (e) { document.getElementById("copied").textContent = "Your browser blocked the copy. Select the table instead."; }
     });
@@ -206,7 +206,7 @@
     const peak = Object.fromEntries(symbols.map((s) => [s, Math.max(...weeks.map((w) => w[s]))]));
     rows.forEach((s, r) => {
       const y = top + r * (ROW + GAP);
-      svg.append(el("text", { x: LEFT - 10, y: y + ROW / 2 + 4, "text-anchor": "end", class: "rowname" }, s === "USDT" ? "Resting" : name[s]));
+      svg.append(el("text", { x: LEFT - 10, y: y + ROW / 2 + 4, "text-anchor": "end", class: "rowname" }, s === "USDT" ? "USDT" : name[s]));
       weeks.forEach((w, k) => {
         const v = s === "USDT" ? usdt(w) * 0.55 : (w[s] > 0 ? 0.18 + 0.82 * w[s] / peak[s] : 0);
         if (v <= 0.01) return;
@@ -232,7 +232,7 @@
       const w = weeks[k], x = LEFT + (k + 0.5) * cw;
       cursor.setAttribute("x1", x); cursor.setAttribute("x2", x);
       const planted = symbols.filter((s) => w[s] > 0.005).sort((a, b) => w[b] - w[a]).map((s) => `${name[s]} ${pct(w[s], 0)}`);
-      let text = `Week of ${longDate(w.date)}: ` + (planted.length ? `${list(planted)}, with ${pct(usdt(w), 0)} resting.` : "every field resting.");
+      let text = `Week of ${longDate(w.date)}: ` + (planted.length ? `${list(planted)}, with ${pct(usdt(w), 0)} in USDT.` : "everything in USDT.");
       const a = levelOn("fallow", w.date), b = levelOn("fallow", ahead(w.date));
       const c = levelOn("btc_hold", w.date), d = levelOn("btc_hold", ahead(w.date));
       if (a && b && c && d && ahead(w.date) <= curves.dates[curves.dates.length - 1]) {
