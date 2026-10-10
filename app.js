@@ -47,14 +47,14 @@ function drawFields(report) {
     const trend = report.plan.trend[f.symbol];
     const weight = report.plan.weights[f.symbol];
     const state =
-      trend === lookbacks ? "Rising over all four stretches"
-      : trend === 0 ? "Fallen over all four. Resting"
-      : `Rising over ${trend} of four`;
+      trend === lookbacks ? "Up over all 4 lookbacks"
+      : trend === 0 ? "Down over all 4. Not held"
+      : `Up over ${trend} of 4 lookbacks`;
     const field = html("div", "field");
     field.setAttribute("role", "listitem");
     field.append(
       html("div", "plot", `<div class="crop-fill" style="height:0"></div>`),
-      html("h4", "", f.name),
+      html("h4", "", `${f.name}<small>${f.symbol}</small>`),
       html("p", "weight", pct(weight)),
       html("p", "state", state)
     );
@@ -77,7 +77,7 @@ function drawFields(report) {
   rest.style.width = report.plan.usdt * 100 + "%";
   rest.title = `USDT ${pct(report.plan.usdt)}`;
   bar.append(rest);
-  key.append(html("li", "", `Resting in USDT <b>${pct(report.plan.usdt)}</b>`));
+  key.append(html("li", "", `In USDT <b>${pct(report.plan.usdt)}</b>`));
   bar.setAttribute("aria-label", key.textContent);
 }
 
@@ -135,7 +135,7 @@ function drawDrawdown(curves, report) {
     // Label each line in the right gutter, where nothing else is drawn.
     const ly = Math.max(y(dd[n - 1]), TOP + 10) + (cls === "btc" ? 4 : -6);
     const t = el("text", { x: x(n - 1) + 8, y: ly, class: "label" }, label);
-    const sub = el("text", { x: x(n - 1) + 8, y: ly + 15 }, `worst ${pct(worst, 0)}`);
+    const sub = el("text", { x: x(n - 1) + 8, y: ly + 15 }, `max drawdown ${pct(worst, 0)}`);
     t.style.fill = sub.style.fill = cls === "btc" ? "var(--ink)" : "var(--wheat-ink)";
     svg.append(sub);
     svg.append(t);
@@ -183,7 +183,7 @@ function drawGrid(values, ours) {
   for (let v = lo; v <= hi + 1e-9; v += 0.1) {
     svg.append(el("text", { x: x(v), y: base + 18, "text-anchor": "middle" }, v.toFixed(1)));
   }
-  svg.append(el("text", { x: W - 24, y: base + 32, "text-anchor": "end" }, "Sharpe on the held-back years"));
+  svg.append(el("text", { x: W - 24, y: base + 32, "text-anchor": "end" }, "Out-of-sample Sharpe"));
   for (const v of values) svg.append(el("line", { x1: x(v), x2: x(v), y1: base - 26, y2: base, class: "tick" }));
   svg.append(el("line", { x1: x(ours), x2: x(ours), y1: base - 72, y2: base, class: "tick ours" }));
   const t = el("text", { x: x(ours) + 8, y: base - 62, class: "label" }, `This page, ${num(ours)}`);
@@ -195,8 +195,8 @@ function drawMetrics(report) {
   const body = document.querySelector("#metrics tbody");
   const groups = [
     ["full", `Whole period, ${monthYear(report.fallow_first)} to ${monthYear(report.last_day)}`],
-    ["in_sample", "The years the rule was written on, to December 2023"],
-    ["held_out", "The years held back, January 2024 on"],
+    ["in_sample", "In sample, to December 2023"],
+    ["held_out", "Out of sample, January 2024 on"],
     ["rtoken_era", `Since rTokens went live, ${monthYear(report.rtoken_listing)} on`],
   ];
   for (const [key, title] of groups) {
@@ -213,6 +213,26 @@ function drawMetrics(report) {
   for (const [label, row, cls] of [["Fallow", report.yearly.fallow, "ours"], ["Holding bitcoin", report.yearly.btc_hold, ""]]) {
     yb.append(html("tr", cls, `<td>${label}</td>` + years.map((y) => `<td>${pct(row[y], 0)}</td>`).join("")));
   }
+}
+
+function drawScorecard(report) {
+  const f = report.fallow, body = document.querySelector("#scorecard tbody");
+  const rows = [
+    [`Whole period, ${num(f.full.years, 1)} years`, f.full],
+    [`In sample, ${num(f.in_sample.years, 1)} years`, f.in_sample],
+    [`Out of sample, ${num(f.held_out.years, 1)} years`, f.held_out],
+    ["Last 365 days", f.last_year],
+  ];
+  for (const [label, m] of rows) {
+    body.append(html("tr", "",
+      `<td>${label}</td><td>${num(m.sharpe)}</td><td>${num(m.sortino)}</td><td>${pct(m.max_drawdown)}</td>` +
+      `<td>${pct(m.cagr)}</td><td>${num(m.turnover_per_year, 1)}\u00d7</td>`));
+  }
+  document.getElementById("scorecard-note").innerHTML =
+    `Out-of-sample Sharpe is ${num(f.decay_ratio)} of in-sample. Rolling 30-day Sharpe is positive in ` +
+    `${pct(f.full.rolling30_share_positive, 0)} of windows. Holding bitcoin over the whole period scored ` +
+    `${num(report.benchmarks.btc_hold.full.sharpe)} with a ${pct(-report.benchmarks.btc_hold.full.max_drawdown, 0)} max drawdown. ` +
+    `The last year lost money, and <a href="#loses">the section on where it loses</a> says why.`;
 }
 
 function drawAdds(report) {
@@ -247,14 +267,14 @@ function drawLosses(report) {
       `A one-year backtest, which is what most strategy listings show, would make Fallow look bad. Holding bitcoin lost ` +
       `${pct(-report.benchmarks.btc_hold.last_year.total_return, 0)} over the same year, and Bitget's own official cross-asset rotation Playbook ` +
       `was flat over its first 82 live days.`,
-    `<b>It leans on gold.</b> Take gold out and the held-back Sharpe falls from ${num(f.held_out.sharpe)} to ` +
+    `<b>It leans on gold.</b> Take gold out and the out-of-sample Sharpe falls from ${num(f.held_out.sharpe)} to ` +
       `${num(a.without_RGLDUSDT.held_out.sharpe)}. Much of 2024 and 2025 was a gold story.`,
     `<b>Five fields flatter it.</b> We fixed the five before looking, following Harry Browne's old portfolio of stocks, bonds, gold and cash, ` +
-      `plus two coins. A nine-field version with foreign shares, mid Treasuries and oil scores ${num(a.nine_fields.held_out.sharpe)} on the held-back years.`,
+      `plus two coins. A nine-field version with foreign shares, mid Treasuries and oil scores ${num(a.nine_fields.held_out.sharpe)} out of sample.`,
     `<b>It trails bitcoin badly in a bull run.</b> On average ${pct(f.full.avg_exposure, 0)} of the money is planted. ` +
       `Bitcoin grew ${pct(report.benchmarks.btc_hold.full.cagr, 0)} a year over the whole period and Fallow grew ${pct(f.full.cagr, 0)}.`,
-    `<b>Costs bite.</b> We assume 15 bp a trade. At 30 bp the held-back Sharpe is ${num(c["30bp"].held_out.sharpe)}, and at 60 bp it is ${num(c["60bp"].held_out.sharpe)}.`,
-    `<b>The Sharpe is a rough figure.</b> On ${num(f.held_out.years, 1)} held-back years its standard error is ${num(f.held_out.sharpe_stderr)}, ` +
+    `<b>Costs bite.</b> We assume 15 bp a trade. At 30 bp the out-of-sample Sharpe is ${num(c["30bp"].held_out.sharpe)}, and at 60 bp it is ${num(c["60bp"].held_out.sharpe)}.`,
+    `<b>The Sharpe is a rough figure.</b> On ${num(f.held_out.years, 1)} out-of-sample years its standard error is ${num(f.held_out.sharpe_stderr)}, ` +
       `so the true number could sit anywhere from about ${num(f.held_out.sharpe - f.held_out.sharpe_stderr, 1)} to ${num(f.held_out.sharpe + f.held_out.sharpe_stderr, 1)}.`,
     `<b>Its dry spells are long.</b> The worst ran from ${monthYear(worst.from)} to ${monthYear(worst.to)}, a fall of ${pct(-worst.depth)} ` +
       `that took most of two years. A month is a coin toss: ${pct(f.full.rolling30_share_positive, 0)} of 30-day windows had a positive Sharpe.`,
@@ -267,7 +287,7 @@ function drawRobustness(report) {
   const h = report.one_year_holds, hb = document.querySelector("#holds tbody");
   for (const [label, m, cls] of [["Fallow", h.fallow, "ours"], ["Holding bitcoin", h.btc_hold, ""]]) {
     hb.append(html("tr", cls,
-      `<td>${label}</td><td>${pct(m.share_positive, 0)} of the time</td><td>${pct(m.worst)}</td><td>${pct(m.tenth_percentile)}</td>` +
+      `<td>${label}</td><td>${pct(m.share_positive, 0)} of periods</td><td>${pct(m.worst)}</td><td>${pct(m.tenth_percentile)}</td>` +
       `<td>${pct(m.median)}</td><td>${pct(m.best, 0)}</td>`));
   }
   fill("hold-n", h.fallow.periods.toLocaleString("en-GB"));
@@ -277,20 +297,6 @@ function drawRobustness(report) {
   }
 }
 
-// Sections ease in as they are reached. Without the observer everything is simply visible.
-function reveal() {
-  if (!("IntersectionObserver" in window) || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-  const io = new IntersectionObserver((entries) => {
-    for (const e of entries) if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
-  }, { rootMargin: "0px 0px -8% 0px" });
-  // Only things still below the fold are hidden first, so nothing in view ever waits on the observer.
-  document.querySelectorAll("section.split .body, .proof li, .steps li").forEach((n) => {
-    if (n.getBoundingClientRect().top < innerHeight) return;
-    n.classList.add("rise");
-    io.observe(n);
-  });
-}
-
 async function main() {
   const { report, curves, grid_held_out } = await (await fetch("data/fallow.json")).json();
   report.fallow_first = curves.dates[0];
@@ -298,6 +304,7 @@ async function main() {
   document.getElementById("weekly-note").textContent = weeklyNote(report);
   document.getElementById("plan-date").textContent = `Set from the midday price in New York on Monday ${longDate(report.plan.as_of)}.`;
   drawFields(report);
+  drawScorecard(report);
   drawRobustness(report);
   drawDrawdown(curves, report);
   drawGrowth(curves, report);
@@ -310,8 +317,7 @@ async function main() {
   fill("fallow-dd", pct(-report.fallow.full.max_drawdown, 0));
   fill("decay", num(report.fallow.decay_ratio));
   fill("grid-n", report.grid.variants);
-  fill("years", num(report.fallow.full.years, 1));
-  fill("held-days", report.fallow.held_out.days.toLocaleString("en-GB"));
+  fill("span", `${monthYear(curves.dates[0])} to ${monthYear(report.last_day)}`);
   fill("listing", longDate(report.rtoken_listing));
   const g = report.grid;
   document.getElementById("grid-note").textContent =
@@ -319,8 +325,6 @@ async function main() {
     `${Math.round(g.default_percentile_held_out * 100)}th percentile, so about three in four of the alternatives did better. ` +
     `We kept the textbook settings anyway, because picking the best of ${g.variants} after the fact is how backtests lie.`;
   document.getElementById("built").textContent = `Numbers built ${report.built} from candles to ${longDate(report.last_day)}.`;
-  reveal();
-
   // live.js takes it from here: it recomputes the plan from Bitget's public API and runs the Monday list.
   window.Fallow = {
     report, curves, pct, num, html, el, longDate, monthYear, list,
