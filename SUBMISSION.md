@@ -11,7 +11,7 @@ Everything below is ready to paste into the Google Form. Items in [square bracke
 | Sub-theme | Cross-Asset Allocation / Rotation |
 | Submission materials link | Code: https://github.com/kinnuworks/fallow · Site: https://kinnuworks.github.io/fallow/ |
 | X promotional post link | [your post URL] |
-| University name | [full official name] |
+| University name | Simon Fraser University |
 | Apply for Demo Day | Yes |
 | Apply for K3 Token Subsidy | Yes |
 | Open to Playbook review and listing discussion | Yes |
