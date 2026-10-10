@@ -160,7 +160,7 @@
       }
       const resting = rows.filter(([, w]) => w < 0.0005).map(([s]) => name[s]);
       body.append(html("tr", "rest",
-        `<td>Resting in USDT${resting.length ? `<small>${list(resting)} ${resting.length > 1 ? "are" : "is"} fallow this week</small>` : ""}</td>` +
+        `<td>Resting in USDT${resting.length ? `<small>${list(resting)} ${resting.length > 1 || resting[0].endsWith("s") ? "are" : "is"} fallow this week</small>` : ""}</td>` +
         `<td>${pct(setting.usdt)}</td><td>${money(setting.usdt * size)}</td><td></td><td></td>`));
       lines.push(`USDT  hold ${money(setting.usdt * size)}  (${pct(setting.usdt)})`);
 
